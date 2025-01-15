@@ -6,6 +6,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,10 @@ public class ImgurService {
 
   private final RestTemplate restTemplate = new RestTemplate();
 
-  private String accessToken = "67ffbe572c942e63fd1b59307eb441d955dd1c0d";
+  //private String accessToken = "67ffbe572c942e63fd1b59307eb441d955dd1c0d";
+  
+  @Value("${imgur.access.token}")
+  private String accessToken;
 
   public String uploadImage(MultipartFile file) throws Exception {
 	  String url = "https://api.imgur.com/3/image";

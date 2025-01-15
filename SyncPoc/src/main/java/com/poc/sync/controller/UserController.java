@@ -214,21 +214,33 @@ public class UserController {
 
    @GetMapping("/profile-with-images")
    public ResponseEntity<Map<String, Object>> getUserProfileWithImages() {
-      String username = SecurityContextHolder.getContext().getAuthentication().getName();
-      if (username == null) {
-          return ResponseEntity.status(401).body(null);
-      }
-      User user = userService.getUserProfile(username);
-      if (user == null) {
-          return ResponseEntity.status(404).body(null);
-      }
-      List<String> imageUrls = userService.getAllImagesForUser(username);
+	   try {
+           String username = SecurityContextHolder.getContext().getAuthentication().getName();
+           if (username == null) {
+               logger.warn("User not authenticated");
+               return ResponseEntity.status(401).body(null);
+           }
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("user", user);
-      response.put("images", imageUrls);
+           logger.debug("Fetching user profile for username: {}", username);
+           User user = userService.getUserProfile(username);
+           if (user == null) {
+               logger.warn("User not found: {}", username);
+               return ResponseEntity.status(404).body(null);
+           }
 
-      return ResponseEntity.ok(response);
+           logger.debug("Fetching images for username: {}", username);
+           List<String> imageUrls = userService.getAllImagesForUser(username);
+
+           Map<String, Object> response = new HashMap<>();
+           response.put("user", user);
+           response.put("images", imageUrls);
+
+           logger.info("User profile and images fetched successfully for username: {}", username);
+           return ResponseEntity.ok(response);
+       } catch (Exception e) {
+           logger.error("Error occurred while fetching user profile and images for username: {}", SecurityContextHolder.getContext().getAuthentication().getName(), e);
+           return ResponseEntity.status(500).body(null);
+       }
    }
 
    @GetMapping("/image/{imageId}")
